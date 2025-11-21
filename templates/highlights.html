@@ -80,7 +80,7 @@
             <div class="stats">
                 <div class="stat-item">
                     <span class="stat-icon">📋</span>
-                    <span>{{ stats.fact_check }} Fact Checks</span>
+                    <span>{{ stats.fact_check }} 解释说明</span>
                 </div>
                 <div class="stat-item">
                     <span class="stat-icon">💡</span>
@@ -99,10 +99,10 @@
         
         {% if highlights %}
         <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterHighlights('all')">All</button>
-            <button class="filter-btn" onclick="filterHighlights('fact_check')">📋 Fact Checks</button>
-            <button class="filter-btn" onclick="filterHighlights('discussion')">💡 Discussions</button>
-            <button class="filter-btn" onclick="filterHighlights('comment')">💬 Comments</button>
+            <button class="filter-btn active" onclick="filterHighlights('all')">全部</button>
+            <button class="filter-btn" onclick="filterHighlights('fact_check')">📋 解释说明</button>
+            <button class="filter-btn" onclick="filterHighlights('discussion')">💡 深入讨论</button>
+            <button class="filter-btn" onclick="filterHighlights('comment')">💬 个人笔记</button>
         </div>
         
         <div id="highlights-container">
@@ -111,9 +111,9 @@
                 <div class="highlight-header">
                     <div class="highlight-type">
                         {% if item.analysis_type == 'fact_check' %}
-                        📋 Fact Check
+                        📋 解释说明
                         {% elif item.analysis_type == 'discussion' %}
-                        💡 Discussion
+                        💡 深入讨论
                         {% elif item.analysis_type == 'comment' %}
                         💬 Comment
                         {% endif %}
@@ -208,8 +208,8 @@
             items.forEach(item => {
                 if (item.style.display !== 'none') {
                     const type = item.dataset.type;
-                    const typeLabel = type === 'fact_check' ? 'Fact Check' : 
-                                     type === 'discussion' ? 'Discussion' : 'Comment';
+                    const typeLabel = type === 'fact_check' ? '解释说明' : 
+                                     type === 'discussion' ? '深入讨论' : '个人笔记';
                     const chapter = item.querySelector('.highlight-chapter').textContent;
                     const text = item.querySelector('.highlight-text').textContent.replace(/^"|"$/g, '');
                     const analysisContent = item.querySelector('.analysis-content');

@@ -377,7 +377,7 @@
     <!-- Context Menu -->
     <div id="context-menu">
         <div class="context-menu-item" onclick="handleContextAction('fact_check')">
-            事实核查
+            解释说明
         </div>
         <div class="context-menu-item" onclick="handleContextAction('discussion')">
             深入讨论
@@ -561,9 +561,9 @@
                             el.onclick = () => showSavedAnalysis(item.highlight);
                             
                             const tooltips = {
-                                'fact_check': '📋 Fact Check - Click to view',
-                                'discussion': '💡 Discussion - Click to view',
-                                'comment': '💬 Your Comment - Click to view/edit'
+                                'fact_check': '📋 解释说明 - 点击查看',
+                                'discussion': '💡 深入讨论 - 点击查看',
+                                'comment': '💬 个人笔记 - 点击查看/编辑'
                             };
                             el.title = tooltips[item.analysisType] || 'Click to view';
                         });
@@ -686,7 +686,7 @@
                     document.getElementById('analysis-box').style.display = 'block';
                     document.getElementById('comment-input-area').style.display = 'none';
                     document.getElementById('panel-analysis-type').textContent = 
-                        analysis.analysis_type === 'fact_check' ? '事实核查' : '深入讨论';
+                        analysis.analysis_type === 'fact_check' ? '解释说明' : '深入讨论';
                     // Render markdown for AI responses
                     document.getElementById('panel-analysis-content').innerHTML = marked.parse(analysis.response);
                     
@@ -794,10 +794,10 @@
             
             // Update panel content
             document.getElementById('panel-title').textContent = 
-                actionType === 'fact_check' ? '📋 事实核查' : '💡 深入讨论';
+                actionType === 'fact_check' ? '📋 解释说明' : '💡 深入讨论';
             document.getElementById('panel-selected-text').textContent = selectedText;
             document.getElementById('panel-analysis-type').textContent = 
-                actionType === 'fact_check' ? '事实核查分析' : '深入讨论';
+                actionType === 'fact_check' ? '解释说明' : '深入讨论';
             document.getElementById('panel-analysis-content').innerHTML = 
                 '<div class="loading">正在分析中...</div>';
             

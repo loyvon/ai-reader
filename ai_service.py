@@ -18,37 +18,59 @@ class AIService:
             raise ValueError("API key not provided. Set OPENAI_API_KEY environment variable.")
     
     async def fact_check(self, text: str, context: str = "") -> str:
-        """Fact-check the selected text."""
-        prompt = f"""请对以下文本进行事实核查。如果有历史事实、数据或陈述，请验证其准确性并提供相关背景信息。
+        """Quick explanation and fact-checking for unclear content."""
+        prompt = f"""请帮我理解以下内容：
 
-选中的文本：
 {text}
 
-上下文：
-{context}
+请根据内容类型提供相应的解释：
 
-请提供：
-1. 主要事实陈述的准确性评估
-2. 相关的历史背景或补充信息
-3. 如有错误或争议，请指出并说明"""
+**如果是专有名词/概念**：给出清晰的定义和解释
+**如果是人物**：介绍其身份、背景和重要性
+**如果是历史事件**：说明事件经过、时间、影响
+**如果是地点**：介绍其地理位置、特点、相关背景
+**如果是数据/事实陈述**：验证准确性，提供来源或背景
+
+要求：
+- 简洁明了，重点突出
+- 如有错误或争议，明确指出
+- 如果内容不完整或无法判断，说明需要更多上下文"""
 
         return await self._call_api(prompt)
     
     async def discuss(self, text: str, context: str = "") -> str:
-        """Generate discussion points about the selected text."""
-        prompt = f"""请对以下文本进行深入分析和讨论。
+        """Generate insightful and academic discussion about the selected text."""
+        prompt = f"""请对以下文本进行深入的学术性分析和讨论：
 
-选中的文本：
 {text}
 
-上下文：
-{context}
+请从以下几个维度展开分析：
 
-请提供：
-1. 文本的核心观点和论证
-2. 可能的不同解读角度
-3. 值得思考的问题
-4. 与其他观点或理论的联系"""
+**1. 核心论点解析**
+- 作者的主要观点是什么？
+- 论证逻辑和结构如何？
+- 使用了哪些论证方法（举例、类比、引用等）？
+
+**2. 理论与学术视角**
+- 这段文本涉及哪些学术领域或理论框架？
+- 与哪些经典理论、学派或学者的观点相关？
+- 在学术史或思想史上的位置如何？
+
+**3. 批判性思考**
+- 论证是否充分？有无逻辑漏洞？
+- 是否存在隐含的假设或前提？
+- 可能的反驳观点是什么？
+
+**4. 启发性问题**
+- 这段文本引发了哪些值得深入思考的问题？
+- 如何将这些观点应用到其他领域或情境？
+- 对当代有什么启示意义？
+
+要求：
+- 保持学术严谨性，但避免过于晦涩
+- 提出具有启发性的问题，引导深入思考
+- 如涉及专业术语，简要解释
+- 鼓励多角度、批判性的思考"""
 
         return await self._call_api(prompt)
     
