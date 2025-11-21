@@ -196,42 +196,58 @@ def process_epub(epub_path: str, output_dir: str) -> Book:
     # Try to find cover image from metadata
     cover_item = None
     
-    # Method 1: Check for ITEM_COVER type
+    # Method 1: Check for ITEM_COVER type (most reliable)
     for item in book.get_items():
         if item.get_type() == ebooklib.ITEM_COVER:
             cover_item = item
-            print(f"Found cover (type COVER): {item.get_name()}")
+            print(f"✓ Found cover (type COVER): {item.get_name()}")
             break
     
-    # Method 2: Look for images with 'cover' in the name
+    # Method 2: Look for images with 'cover' or 'cvi' in the name
     if not cover_item:
         for item in book.get_items():
-            if item.get_type() == ebooklib.ITEM_IMAGE:
+            if item.get_type() in (ebooklib.ITEM_IMAGE, ebooklib.ITEM_COVER):
                 name_lower = item.get_name().lower()
                 if 'cover' in name_lower or 'cvi' in name_lower:
                     cover_item = item
-                    print(f"Found cover (by name): {item.get_name()}")
+                    print(f"✓ Found cover (by name): {item.get_name()}")
                     break
     
-    # Method 3: Use first image as fallback
+    # Method 3: Use first large image as fallback (skip small icons/logos)
     if not cover_item:
         for item in book.get_items():
-            if item.get_type() == ebooklib.ITEM_IMAGE:
-                cover_item = item
-                print(f"Using first image as cover: {item.get_name()}")
-                break
+            if item.get_type() in (ebooklib.ITEM_IMAGE, ebooklib.ITEM_COVER):
+                # Skip very small images (likely icons)
+                if len(item.get_content()) > 10000:  # > 10KB
+                    cover_item = item
+                    print(f"✓ Using first large image as cover: {item.get_name()}")
+                    break
 
+    saved_files = {}  # Track saved filenames to detect collisions
+    
     for item in book.get_items():
-        if item.get_type() == ebooklib.ITEM_IMAGE:
+        # Extract both ITEM_IMAGE and ITEM_COVER types
+        if item.get_type() in (ebooklib.ITEM_IMAGE, ebooklib.ITEM_COVER):
             # Normalize filename
             original_fname = os.path.basename(item.get_name())
             # Sanitize filename for OS
             safe_fname = "".join([c for c in original_fname if c.isalpha() or c.isdigit() or c in '._-']).strip()
 
+            # Handle filename collisions by adding a counter
+            if safe_fname in saved_files:
+                base, ext = os.path.splitext(safe_fname)
+                counter = 1
+                while f"{base}_{counter}{ext}" in saved_files:
+                    counter += 1
+                safe_fname = f"{base}_{counter}{ext}"
+                print(f"Warning: Filename collision, renamed to {safe_fname}")
+
             # Save to disk
             local_path = os.path.join(images_dir, safe_fname)
             with open(local_path, 'wb') as f:
                 f.write(item.get_content())
+            
+            saved_files[safe_fname] = item.get_name()
 
             # Map keys: We try both the full internal path and just the basename
             # to be robust against messy HTML src attributes
