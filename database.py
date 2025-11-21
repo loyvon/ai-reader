@@ -67,6 +67,16 @@ class Database:
             )
         """)
         
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS reading_progress (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                book_id TEXT NOT NULL UNIQUE,
+                chapter_index INTEGER NOT NULL,
+                scroll_position INTEGER DEFAULT 0,
+                last_read_at TEXT NOT NULL
+            )
+        """)
+        
         conn.commit()
         conn.close()
     
@@ -206,3 +216,36 @@ class Database:
         
         conn.commit()
         conn.close()
+    
+    def save_progress(self, book_id: str, chapter_index: int, scroll_position: int = 0):
+        """Save or update reading progress for a book."""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            INSERT INTO reading_progress (book_id, chapter_index, scroll_position, last_read_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(book_id) DO UPDATE SET
+                chapter_index = excluded.chapter_index,
+                scroll_position = excluded.scroll_position,
+                last_read_at = excluded.last_read_at
+        """, (book_id, chapter_index, scroll_position, datetime.now().isoformat()))
+        
+        conn.commit()
+        conn.close()
+    
+    def get_progress(self, book_id: str) -> Optional[Dict]:
+        """Get the last read position for a book."""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT chapter_index, scroll_position FROM reading_progress
+            WHERE book_id = ?
+        """, (book_id,))
+        
+        result = cursor.fetchone()
+        conn.close()
+        
+        return dict(result) if result else None

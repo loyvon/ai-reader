@@ -777,8 +777,83 @@
             }
         }
 
-        // Load highlights when page loads
-        window.addEventListener('DOMContentLoaded', loadSavedHighlights);
+        // Load highlights and restore scroll position when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            loadSavedHighlights();
+            
+            // Restore scroll position
+            const savedScroll = {{ saved_scroll }};
+            if (savedScroll > 0) {
+                // Try multiple times to ensure content is loaded
+                const mainElement = document.getElementById('main');
+                let attempts = 0;
+                const restoreScroll = () => {
+                    mainElement.scrollTop = savedScroll;
+                    currentScrollPosition = savedScroll;
+                    
+                    // Verify it worked, retry if needed
+                    if (mainElement.scrollTop < savedScroll - 10 && attempts < 5) {
+                        attempts++;
+                        setTimeout(restoreScroll, 200);
+                    }
+                };
+                setTimeout(restoreScroll, 100);
+            }
+            
+            // Setup progress saving on navigation
+            setupProgressSaving();
+        });
+        
+        // Track current scroll position
+        let currentScrollPosition = 0;
+        
+        // Update scroll position on scroll
+        document.getElementById('main').addEventListener('scroll', function() {
+            currentScrollPosition = Math.round(this.scrollTop);
+        });
+        
+        // Save reading progress with scroll position
+        function saveProgress() {
+            return fetch(`/api/progress?book_id=${encodeURIComponent(BOOK_ID)}&chapter_index=${CHAPTER_INDEX}&scroll_position=${currentScrollPosition}`, {
+                method: 'POST',
+                keepalive: true  // Ensure request completes even if page unloads
+            }).catch(error => {
+                console.error('Failed to save progress:', error);
+            });
+        }
+        
+        // Setup progress saving listeners
+        function setupProgressSaving() {
+            // Save progress when navigating away or closing (use both events for better compatibility)
+            window.addEventListener('beforeunload', function(e) {
+                saveProgress();
+            });
+            
+            window.addEventListener('pagehide', function(e) {
+                saveProgress();
+            });
+            
+            // Save progress when clicking navigation links
+            document.querySelectorAll('.nav-btn:not(.disabled)').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    saveProgress().then(() => {
+                        window.location.href = this.href;
+                    });
+                });
+            });
+            
+            // Save progress when clicking back to library
+            const homeLink = document.querySelector('.nav-home');
+            if (homeLink) {
+                homeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    saveProgress().then(() => {
+                        window.location.href = this.href;
+                    });
+                });
+            }
+        }
 
         // Prevent default context menu on book content
         document.getElementById('book-content').addEventListener('contextmenu', function(e) {

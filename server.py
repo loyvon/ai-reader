@@ -112,20 +112,34 @@ async def library_view(request: Request):
                     suffix_num = item.split("_")[-1]
                     folder_suffix = f"Copy {suffix_num}"
                 
+                # Get reading progress
+                progress_data = db.get_progress(item)
+                total_chapters = len(book.spine)
+                progress_percent = 0
+                current_chapter = None
+                if progress_data:
+                    current_chapter = progress_data['chapter_index']
+                    progress_percent = int((current_chapter + 1) / total_chapters * 100)
+                
                 books.append({
                     "id": item,
                     "title": book.metadata.title,
                     "author": ", ".join(book.metadata.authors),
-                    "chapters": len(book.spine),
+                    "chapters": total_chapters,
                     "folder_suffix": folder_suffix,
-                    "cover": book.cover_image if hasattr(book, 'cover_image') else None
+                    "cover": book.cover_image if hasattr(book, 'cover_image') else None,
+                    "progress": current_chapter,
+                    "progress_percent": progress_percent
                 })
     return templates.TemplateResponse("library.html", {"request": request, "books": books})
 
 @app.get("/read/{book_id}", response_class=HTMLResponse)
-async def redirect_to_first_chapter(book_id: str):
-    """Helper to just go to chapter 0."""
-    return await read_chapter(book_id=book_id, chapter_index=0)
+async def redirect_to_last_position(book_id: str):
+    """Redirect to last read chapter or chapter 0 if new."""
+    from fastapi.responses import RedirectResponse
+    progress_data = db.get_progress(book_id)
+    chapter_index = progress_data['chapter_index'] if progress_data else 0
+    return RedirectResponse(url=f"/read/{book_id}/{chapter_index}", status_code=302)
 
 @app.get("/read/{book_id}/images/{image_name}")
 async def serve_image(book_id: str, image_name: str):
@@ -182,6 +196,12 @@ async def read_chapter(request: Request, book_id: str, chapter_ref: str):
     prev_idx = chapter_index - 1 if chapter_index > 0 else None
     next_idx = chapter_index + 1 if chapter_index < len(book.spine) - 1 else None
 
+    # Get saved scroll position if returning to this chapter
+    progress_data = db.get_progress(book_id)
+    saved_scroll = 0
+    if progress_data and progress_data['chapter_index'] == chapter_index:
+        saved_scroll = progress_data['scroll_position']
+    
     return templates.TemplateResponse("reader.html", {
         "request": request,
         "book": book,
@@ -189,11 +209,22 @@ async def read_chapter(request: Request, book_id: str, chapter_ref: str):
         "chapter_index": chapter_index,
         "book_id": book_id,
         "prev_idx": prev_idx,
-        "next_idx": next_idx
+        "next_idx": next_idx,
+        "saved_scroll": saved_scroll
     })
 
 
 # AI-related endpoints
+
+@app.post("/api/progress")
+async def save_reading_progress(book_id: str, chapter_index: int, scroll_position: int = 0):
+    """Save reading progress."""
+    try:
+        db.save_progress(book_id, chapter_index, scroll_position)
+        return {"status": "success"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/highlight")
 async def create_highlight(req: HighlightRequest):

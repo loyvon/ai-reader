@@ -34,6 +34,9 @@
         body.dark-mode .search-input:focus { border-color: #64b5f6; }
         body.dark-mode .search-icon { color: #666; }
         body.dark-mode .no-results { color: #666; }
+        body.dark-mode .progress-bar-container { background: #404040; }
+        body.dark-mode .progress-bar-fill { background: #64b5f6; }
+        body.dark-mode .progress-text { color: #64b5f6; }
         
         /* Theme toggle button */
         .theme-toggle { 
@@ -70,6 +73,9 @@
         .book-info { flex-grow: 1; margin-bottom: 15px; }
         .book-title { font-size: 1.2em; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
         .book-meta { color: #666; font-size: 0.9em; margin-bottom: 15px; }
+        .progress-bar-container { width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 10px 0 5px 0; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: #3498db; transition: width 0.3s; }
+        .progress-text { font-size: 0.8em; color: #3498db; font-weight: 500; }
         .btn { display: inline-block; background: #3498db; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 0.9em; border: none; cursor: pointer; text-align: center; }
         .btn:hover { background: #2980b9; }
         .book-actions { display: flex; gap: 8px; align-items: center; margin-top: auto; }
@@ -135,7 +141,7 @@
             <!-- Existing Books -->
             {% for book in books %}
             <div class="book-card" data-book-id="{{ book.id }}">
-                <a href="/read/{{ book.id }}/0" style="text-decoration: none;">
+                <a href="/read/{{ book.id }}" style="text-decoration: none;">
                     <div class="book-cover">
                         {% if book.cover %}
                         <img src="/read/{{ book.id }}/images/{{ book.cover }}" alt="{{ book.title }}" onerror="this.onerror=null; this.src='/read/{{ book.id }}/images/cover.jpg'; this.onerror=function(){this.parentElement.innerHTML='📚'}">
@@ -153,9 +159,15 @@
                         <br><small style="color: #999;">{{ book.folder_suffix }}</small>
                         {% endif %}
                     </div>
+                    {% if book.progress is not none %}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: {{ book.progress_percent }}%"></div>
+                    </div>
+                    <div class="progress-text">{{ book.progress_percent }}% complete</div>
+                    {% endif %}
                 </div>
                 <div class="book-actions">
-                    <a href="/read/{{ book.id }}/0" class="btn">Read Book</a>
+                    <a href="/read/{{ book.id }}" class="btn">Read Book</a>
                     <div style="position: relative;">
                         <button class="menu-btn" onclick="toggleMenu('{{ book.id }}', event)">⋮</button>
                         <div id="menu-{{ book.id }}" class="dropdown-menu">
