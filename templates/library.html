@@ -81,9 +81,9 @@
                 <a href="/read/{{ book.id }}/0" style="text-decoration: none;">
                     <div class="book-cover">
                         {% if book.cover %}
-                        <img src="/read/{{ book.id }}/images/{{ book.cover }}" alt="{{ book.title }}" onerror="this.parentElement.innerHTML='📚'">
+                        <img src="/read/{{ book.id }}/images/{{ book.cover }}" alt="{{ book.title }}" onerror="this.onerror=null; this.src='/read/{{ book.id }}/images/cover.jpg'; this.onerror=function(){this.parentElement.innerHTML='📚'}">
                         {% else %}
-                        📚
+                        <img src="/read/{{ book.id }}/images/cover.jpg" alt="{{ book.title }}" onerror="this.parentElement.innerHTML='📚'">
                         {% endif %}
                     </div>
                 </a>
