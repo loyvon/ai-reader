@@ -4,16 +4,29 @@ A lightweight, self-hosted EPUB reader with integrated AI analysis capabilities.
 
 ## Features
 
-- 📚 **EPUB Reading** - Clean three-column layout (TOC, Content, AI Panel)
+### Reading Experience
+- 📚 **Clean Layout** - Three-column design (TOC, Content, AI Panel)
+- 📖 **Sticky Navigation** - Top navigation bar stays visible while scrolling
+- ⌨️ **Keyboard Shortcuts** - Arrow keys for prev/next chapter, ESC to close panels
+- 🔗 **Internal Links** - Footnotes and author comments open in modal popups
+- 🎯 **Clickable Covers** - Click book covers to start reading instantly
+
+### AI & Annotations
 - 🤖 **AI Analysis** - Right-click on text for fact-checking or discussion (DeepSeek)
-- � **Paersonal Comments** - Add your own notes without AI (no API cost)
+- � ***Personal Comments** - Add your own notes without AI (no API cost)
 - 💾 **Manual Save** - Choose what to save to avoid clutter
-- ✨ **Visual Highlights** - Saved analyses automatically highlighted with icons (📋 💡 💬)
-- 📝 **Highlights View** - See all your notes and analyses for each book in one page
+- ✨ **Color-Coded Highlights** - Yellow (fact check), Blue (discussion), Green (comments)
+- 🏷️ **Smart Tooltips** - Hover over highlights to see type
+- 🗑️ **Edit & Delete** - Manage all your highlights and comments
 - 🎨 **Markdown Support** - AI responses render with proper formatting
-- 🗂️ **Organized Storage** - All books in `books/` directory, data in SQLite
-- 🌐 **Web Upload** - Upload EPUB files directly from browser
+
+### Library & Organization
+- 📝 **Highlights View** - See all your notes and analyses for each book
+- 📤 **Export to Markdown** - Export highlights with AI context warnings
+- 🌐 **Web Upload** - Upload EPUB files via click or drag & drop
 - 🖼️ **Cover Images** - Automatic cover extraction and display
+- 🔍 **Search** - Find books by title or author
+- 🗂️ **Organized Storage** - All books in `books/` directory, data in SQLite
 
 ## Quick Start
 
@@ -30,12 +43,11 @@ Get your key from: https://platform.deepseek.com/api_keys
 
 ### 2. Add Books
 
-**Option A: Upload via Web Interface (Easiest)**
+**Option A: Upload via Web Interface (Recommended)**
 1. Start server: `uv run server.py`
 2. Open http://127.0.0.1:8123
-3. Click the "+" card
-4. Select EPUB file
-5. Wait for automatic processing
+3. Click the "+" card OR drag & drop EPUB file
+4. Wait for automatic processing
 
 **Option B: Command Line**
 ```bash
@@ -68,16 +80,24 @@ uv run server.py
 - Click "Save" for important insights
 
 ### Highlights
-- **Yellow highlights** (📋 💡) - AI analyses
-- **Green highlights** (💬) - Your comments
-- Click any highlight to view/edit
-- Comments are editable and deletable
+- **Yellow** - Fact checks
+- **Blue** - Discussions
+- **Green** - Your comments
+- Hover to see type, click to view/edit
+- All highlights are editable and deletable
 
-### View All Highlights
-- Click ⋮ menu on any book → "📝 View Highlights"
+### View & Export Highlights
+- Click ⋮ menu on any book → "View Highlights"
 - See all your notes and analyses in one page
 - Filter by type (Fact Check, Discussion, Comment)
+- Export to markdown for AI processing
+- Context length warnings for large exports
 - Jump directly to any chapter
+
+### Keyboard Shortcuts
+- **← →** - Navigate between chapters
+- **ESC** - Close panels and modals
+- Works anywhere except when typing in text fields
 
 ## Project Structure
 
@@ -99,7 +119,7 @@ reader3/
 ## Data Management
 
 ### View Your Highlights
-- Click ⋮ menu on any book → "📝 View Highlights"
+- Click ⋮ menu on any book → "View Highlights"
 - See all notes, comments, and analyses in one page
 - Filter by type and jump to chapters
 
@@ -131,20 +151,16 @@ copy reader_data.db backups\reader_data_backup.db
 
 ### API Key Error
 1. Check `.env` file exists and has correct key
-2. Run `uv run test_env.py` to verify
-3. Restart server
+2. Restart server
 
 ### No Highlights Showing
 1. Check browser console (F12) for errors
 2. Verify data exists: `uv run check_database.py`
-3. Refresh page
+3. Hard refresh (Ctrl+Shift+R)
 
 ### Server Won't Start
 1. Check if port 8123 is available
 2. Verify `.env` configuration
-3. Run `uv run debug_server.py` for details
-
-
 
 ## License
 

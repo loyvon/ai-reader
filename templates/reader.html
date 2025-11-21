@@ -95,6 +95,22 @@
         .toggle-panel-btn { position: fixed; right: 20px; bottom: 20px; background: #3498db; color: white; border: none; border-radius: 50%; width: 56px; height: 56px; font-size: 1.5em; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 999; transition: all 0.2s; }
         .toggle-panel-btn:hover { background: #2980b9; transform: scale(1.05); }
         .toggle-panel-btn.hidden { display: none; }
+        
+        /* Settings Button & Dropdown */
+        .settings-container { position: relative; display: inline-block; }
+        .settings-btn { background: none; border: none; color: #666; font-size: 1.2em; cursor: pointer; padding: 8px; margin-left: 15px; transition: color 0.2s; }
+        .settings-btn:hover { color: #333; }
+        .settings-dropdown { position: absolute; right: 0; top: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 15px; min-width: 280px; display: none; z-index: 1000; margin-top: 5px; }
+        .settings-dropdown.show { display: block; }
+        .settings-section { margin-bottom: 15px; }
+        .settings-section:last-child { margin-bottom: 0; }
+        .settings-label { font-family: -apple-system, sans-serif; font-size: 0.85em; font-weight: 600; color: #333; margin-bottom: 8px; display: block; }
+        .settings-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .settings-option { padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; background: white; cursor: pointer; font-size: 0.85em; transition: all 0.2s; font-family: -apple-system, sans-serif; }
+        .settings-option:hover { background: #f8f9fa; }
+        .settings-option.active { background: #3498db; color: white; border-color: #3498db; }
+        .settings-slider { width: 100%; }
+        .settings-value { font-size: 0.85em; color: #666; margin-top: 5px; text-align: center; }
 
         /* Saved indicator */
         .saved-indicator { color: #28a745; font-size: 0.85em; margin-top: 10px; display: none; }
@@ -221,6 +237,37 @@
                 {% else %}
                     <span class="nav-btn disabled">下一章 →</span>
                 {% endif %}
+                
+                <div class="settings-container">
+                    <button class="settings-btn" onclick="toggleSettings(event)" title="Reading Settings">⚙️</button>
+                    <div class="settings-dropdown" id="settings-dropdown">
+                        <div class="settings-section">
+                            <label class="settings-label">Font Family</label>
+                            <div class="settings-options">
+                                <button class="settings-option active" onclick="setFont('Georgia, serif')" data-font="georgia">Georgia</button>
+                                <button class="settings-option" onclick="setFont('Times New Roman, serif')" data-font="times">Times</button>
+                                <button class="settings-option" onclick="setFont('-apple-system, sans-serif')" data-font="sans">Sans</button>
+                                <button class="settings-option" onclick="setFont('Arial, sans-serif')" data-font="arial">Arial</button>
+                                <button class="settings-option" onclick="setFont('Verdana, sans-serif')" data-font="verdana">Verdana</button>
+                                <button class="settings-option" onclick="setFont('Microsoft YaHei, sans-serif')" data-font="yahei">微软雅黑</button>
+                                <button class="settings-option" onclick="setFont('SimSun, serif')" data-font="simsun">宋体</button>
+                                <button class="settings-option" onclick="setFont('Consolas, monospace')" data-font="mono">Mono</button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <label class="settings-label">Font Size</label>
+                            <input type="range" class="settings-slider" min="14" max="24" value="18" step="1" oninput="setFontSize(this.value)">
+                            <div class="settings-value" id="font-size-value">18px</div>
+                        </div>
+                        
+                        <div class="settings-section">
+                            <label class="settings-label">Line Height</label>
+                            <input type="range" class="settings-slider" min="1.4" max="2.2" value="1.8" step="0.1" oninput="setLineHeight(this.value)">
+                            <div class="settings-value" id="line-height-value">1.8</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div class="book-content" id="book-content">
@@ -1011,6 +1058,86 @@
                 document.getElementById('link-modal').classList.remove('show');
             }
         }
+        
+        // Reading settings
+        function toggleSettings(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close settings when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.settings-container')) {
+                document.getElementById('settings-dropdown').classList.remove('show');
+            }
+        });
+        
+        function setFont(fontFamily) {
+            document.getElementById('book-content').style.fontFamily = fontFamily;
+            localStorage.setItem('reader-font', fontFamily);
+            
+            // Update active button
+            document.querySelectorAll('.settings-option[data-font]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function setFontSize(size) {
+            document.getElementById('book-content').style.fontSize = size + 'px';
+            document.getElementById('font-size-value').textContent = size + 'px';
+            localStorage.setItem('reader-font-size', size);
+        }
+        
+        function setLineHeight(height) {
+            document.getElementById('book-content').style.lineHeight = height;
+            document.getElementById('line-height-value').textContent = height;
+            localStorage.setItem('reader-line-height', height);
+        }
+        
+        // Load saved settings on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedFont = localStorage.getItem('reader-font');
+            const savedSize = localStorage.getItem('reader-font-size');
+            const savedHeight = localStorage.getItem('reader-line-height');
+            
+            if (savedFont) {
+                document.getElementById('book-content').style.fontFamily = savedFont;
+                // Update active button
+                const fontMap = {
+                    'Georgia, serif': 'georgia',
+                    'Times New Roman, serif': 'times',
+                    '-apple-system, sans-serif': 'sans',
+                    'Arial, sans-serif': 'arial',
+                    'Verdana, sans-serif': 'verdana',
+                    'Microsoft YaHei, sans-serif': 'yahei',
+                    'SimSun, serif': 'simsun',
+                    'Consolas, monospace': 'mono'
+                };
+                const fontType = fontMap[savedFont];
+                if (fontType) {
+                    document.querySelectorAll('.settings-option[data-font]').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.getAttribute('data-font') === fontType) {
+                            btn.classList.add('active');
+                        }
+                    });
+                }
+            }
+            
+            if (savedSize) {
+                document.getElementById('book-content').style.fontSize = savedSize + 'px';
+                document.querySelector('.settings-slider[min="14"]').value = savedSize;
+                document.getElementById('font-size-value').textContent = savedSize + 'px';
+            }
+            
+            if (savedHeight) {
+                document.getElementById('book-content').style.lineHeight = savedHeight;
+                document.querySelector('.settings-slider[min="1.4"]').value = savedHeight;
+                document.getElementById('line-height-value').textContent = savedHeight;
+            }
+        });
     </script>
 </body>
 </html>
