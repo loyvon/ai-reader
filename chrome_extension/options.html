@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AI Reader Options</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>AI Reader Settings</h1>
+      <form id="options-form">
+        <label for="apiBase">API Base URL</label>
+        <input id="apiBase" type="text" placeholder="https://api.openai.com/v1 or http://localhost:8123" />
+
+        <label for="apiKey">API Key</label>
+        <input id="apiKey" type="password" placeholder="sk-..." />
+
+        <label for="model">Model (optional)</label>
+        <input id="model" type="text" placeholder="gpt-4o-mini" />
+
+        <div class="row">
+          <button id="save">Save</button>
+          <button id="clear" type="button">Clear</button>
+        </div>
+      </form>
+      <p class="note">Note: your API key is stored locally in the extension storage on this device.</p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
