@@ -1,6 +1,6 @@
 // Background service worker: create context menu items and call backend
 // Default API base — keep in sync with `manifest.json` host_permissions
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost:8123';
 
 function createContextMenus() {
   try {
@@ -8,13 +8,13 @@ function createContextMenus() {
       // ignore errors
       chrome.contextMenus.create({
         id: 'fact_check',
-        title: 'AI Reader: Fact-check',
+        title: 'Fact-check',
         contexts: ['selection']
       });
 
       chrome.contextMenus.create({
         id: 'discuss',
-        title: 'AI Reader: Discuss',
+        title: 'Discuss',
         contexts: ['selection']
       });
     });

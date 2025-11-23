@@ -453,4 +453,4 @@ async def upload_book(file: UploadFile = File(...)):
 if __name__ == "__main__":
     import uvicorn
     print("Starting server at http://0.0.0.0:8123 (accessible externally if firewall/NAT allow)")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8123)
